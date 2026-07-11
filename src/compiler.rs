@@ -303,6 +303,20 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn seed_business_template_compiles() {
+        let templates = Path::new(env!("CARGO_MANIFEST_DIR")).join("templates");
+        let pool = CompilerPool::new(&test_config(&templates)).unwrap();
+        let source = std::fs::read_to_string(templates.join("business.typ")).unwrap();
+        match pool.compile("business".into(), source).await {
+            CompileOutcome::Ok { pdf, warnings } => {
+                assert_eq!(&pdf[..4], b"%PDF");
+                assert!(warnings.is_empty(), "unexpected warnings: {warnings:?}");
+            }
+            other => panic!("seed template must compile, got {other:?}"),
+        }
+    }
+
+    #[tokio::test]
     async fn universe_disabled_gives_clear_diag() {
         let dir = fixture();
         let pool = CompilerPool::new(&test_config(dir.path())).unwrap();
