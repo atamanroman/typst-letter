@@ -43,6 +43,13 @@ body.editor-page { height: 100vh; overflow: hidden; }
 }
 .toolbar .home { text-decoration: none; color: inherit; font-weight: 600; }
 .toolbar .status { flex: 1; color: #777; font-size: 0.9rem; }
+.toolbar .draft-note {
+  color: var(--warning);
+  font-size: 0.85rem;
+  border: 1px solid var(--warning);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+}
 .toolbar button {
   padding: 0.3rem 0.8rem;
   border: 1px solid var(--border);

@@ -13,6 +13,8 @@ app.innerHTML = `
   <header class="toolbar">
     <a href="/" class="home">&larr; ${boot.slug}</a>
     <span id="status" class="status"></span>
+    <span id="draft-note" class="draft-note" hidden>local draft</span>
+    <button id="reset" hidden title="Discard local draft, load the template from disk">Reset</button>
     <button id="toggle" class="toggle" hidden>Preview</button>
     <button id="download">Download PDF</button>
   </header>
@@ -34,7 +36,8 @@ const splitEl = document.querySelector(".split");
 // ---------- Editor ----------
 
 const stored = localStorage.getItem(storageKey);
-const initialSource = stored !== null && stored !== boot.source ? stored : boot.source;
+const usingDraft = stored !== null && stored !== boot.source;
+const initialSource = usingDraft ? stored : boot.source;
 
 const view = new EditorView({
   parent: document.getElementById("editor"),
@@ -51,6 +54,25 @@ const view = new EditorView({
   }),
 });
 
+// ---------- Draft indicator + reset ----------
+
+const draftNote = document.getElementById("draft-note");
+const resetBtn = document.getElementById("reset");
+
+function setDraftUi(active) {
+  draftNote.hidden = !active;
+  resetBtn.hidden = !active;
+}
+setDraftUi(usingDraft);
+
+resetBtn.onclick = () => {
+  localStorage.removeItem(storageKey);
+  view.dispatch({
+    changes: { from: 0, to: view.state.doc.length, insert: boot.source },
+  });
+  setDraftUi(false);
+};
+
 // ---------- Compile pipeline ----------
 
 let debounceTimer = null;
@@ -61,7 +83,9 @@ let currentBlobUrl = null;
 let retried429 = false;
 
 function onEdit() {
-  localStorage.setItem(storageKey, view.state.doc.toString());
+  const current = view.state.doc.toString();
+  localStorage.setItem(storageKey, current);
+  setDraftUi(current !== boot.source);
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(compile, boot.debounceMs);
 }
