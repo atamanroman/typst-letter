@@ -107,7 +107,10 @@ pub fn parse_size(s: &str) -> Result<usize> {
     } else {
         (s, 1)
     };
-    let num: usize = num.trim().parse().with_context(|| format!("bad size: {s:?}"))?;
+    let num: usize = num
+        .trim()
+        .parse()
+        .with_context(|| format!("bad size: {s:?}"))?;
     Ok(num * factor)
 }
 

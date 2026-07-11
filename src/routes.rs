@@ -51,8 +51,8 @@ async fn basic_auth(
     req: axum::extract::Request,
     next: Next,
 ) -> Response {
-    let expected = base64::engine::general_purpose::STANDARD
-        .encode(format!("{}:{}", auth.user, auth.pass));
+    let expected =
+        base64::engine::general_purpose::STANDARD.encode(format!("{}:{}", auth.user, auth.pass));
     let ok = req
         .headers()
         .get(header::AUTHORIZATION)
@@ -185,10 +185,8 @@ async fn compile(
             );
             headers.insert(
                 header::CONTENT_DISPOSITION,
-                HeaderValue::from_str(&format!(
-                    "{disposition}; filename=\"{slug}-{date}.pdf\""
-                ))
-                .expect("valid header"),
+                HeaderValue::from_str(&format!("{disposition}; filename=\"{slug}-{date}.pdf\""))
+                    .expect("valid header"),
             );
             if !warnings.is_empty() {
                 // ASCII-safe: serde_json escapes control chars, and we strip
@@ -230,7 +228,10 @@ async fn editor_js() -> impl IntoResponse {
 }
 
 async fn editor_css() -> impl IntoResponse {
-    ([(header::CONTENT_TYPE, "text/css; charset=utf-8")], EDITOR_CSS)
+    (
+        [(header::CONTENT_TYPE, "text/css; charset=utf-8")],
+        EDITOR_CSS,
+    )
 }
 
 #[cfg(test)]
@@ -242,11 +243,7 @@ mod tests {
     fn fixture() -> (tempfile::TempDir, AppState) {
         let dir = tempfile::tempdir().unwrap();
         std::fs::create_dir(dir.path().join("shared")).unwrap();
-        std::fs::write(
-            dir.path().join("business.typ"),
-            "// Business letter\n= Hi",
-        )
-        .unwrap();
+        std::fs::write(dir.path().join("business.typ"), "// Business letter\n= Hi").unwrap();
         std::fs::write(dir.path().join("personal.typ"), "// Personal\n= Yo").unwrap();
         let mut config = Config::from_toml("").unwrap();
         config.templates_dir = dir.path().to_path_buf();
@@ -272,7 +269,10 @@ mod tests {
     #[tokio::test]
     async fn healthz_ok() {
         let (_d, state) = fixture();
-        let res = router(state).oneshot(req("GET", "/healthz", "")).await.unwrap();
+        let res = router(state)
+            .oneshot(req("GET", "/healthz", ""))
+            .await
+            .unwrap();
         assert_eq!(res.status(), StatusCode::OK);
     }
 
@@ -290,7 +290,10 @@ mod tests {
     #[tokio::test]
     async fn editor_embeds_source() {
         let (_d, state) = fixture();
-        let res = router(state).oneshot(req("GET", "/business", "")).await.unwrap();
+        let res = router(state)
+            .oneshot(req("GET", "/business", ""))
+            .await
+            .unwrap();
         assert_eq!(res.status(), StatusCode::OK);
         let body = String::from_utf8(res.into_body().collect().await.unwrap().to_bytes().to_vec())
             .unwrap();
@@ -373,7 +376,11 @@ mod tests {
         state.config = Arc::new(config);
         let app = router(state);
 
-        let res = app.clone().oneshot(req("GET", "/healthz", "")).await.unwrap();
+        let res = app
+            .clone()
+            .oneshot(req("GET", "/healthz", ""))
+            .await
+            .unwrap();
         assert_eq!(res.status(), StatusCode::OK);
 
         let res = app.clone().oneshot(req("GET", "/", "")).await.unwrap();

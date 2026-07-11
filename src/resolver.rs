@@ -47,14 +47,14 @@ impl MainSlot {
 
 impl FileResolver for MainSlot {
     fn resolve_binary(&self, id: FileId) -> FileResult<Cow<'_, Bytes>> {
-        Err(FileError::NotFound(id.vpath().as_rooted_path().into()))
+        Err(FileError::NotFound(id.vpath().get_with_slash().into()))
     }
 
     fn resolve_source(&self, id: FileId) -> FileResult<Cow<'_, Source>> {
         if id == Self::file_id() {
             Ok(Cow::Owned(self.source()))
         } else {
-            Err(FileError::NotFound(id.vpath().as_rooted_path().into()))
+            Err(FileError::NotFound(id.vpath().get_with_slash().into()))
         }
     }
 }
@@ -99,7 +99,9 @@ impl ConfinedResolver {
             .realize(&self.root)
             .map_err(|_| FileError::AccessDenied)?;
         // ... and canonicalize + prefix check also catches symlink escapes.
-        let canonical = path.canonicalize().map_err(|e| FileError::from_io(e, &path))?;
+        let canonical = path
+            .canonicalize()
+            .map_err(|e| FileError::from_io(e, &path))?;
         if !canonical.starts_with(&self.root) {
             return Err(FileError::AccessDenied);
         }
@@ -145,9 +147,13 @@ mod tests {
     #[test]
     fn resolves_inside_root() {
         let (_dir, resolver, _) = fixture();
-        let src = resolver.resolve_source(project_id("shared/letter.typ")).unwrap();
+        let src = resolver
+            .resolve_source(project_id("shared/letter.typ"))
+            .unwrap();
         assert_eq!(src.text(), "#let letter = 1");
-        assert!(resolver.resolve_binary(project_id("shared/letter.typ")).is_ok());
+        assert!(resolver
+            .resolve_binary(project_id("shared/letter.typ"))
+            .is_ok());
     }
 
     #[test]
@@ -171,7 +177,9 @@ mod tests {
         let (dir, resolver, secret) = fixture();
         let link = dir.path().join("templates/sneaky.typ");
         std::os::unix::fs::symlink(&secret, &link).unwrap();
-        let err = resolver.resolve_source(project_id("sneaky.typ")).unwrap_err();
+        let err = resolver
+            .resolve_source(project_id("sneaky.typ"))
+            .unwrap_err();
         assert!(matches!(err, FileError::AccessDenied), "got {err:?}");
     }
 
@@ -179,9 +187,11 @@ mod tests {
     fn package_disabled_message() {
         let (_dir, resolver, _) = fixture();
         let pkg: typst::syntax::package::PackageSpec = "@preview/example:0.1.0".parse().unwrap();
-        let id =
-            RootedPath::new(VirtualRoot::Package(pkg), VirtualPath::new("lib.typ").unwrap())
-                .intern();
+        let id = RootedPath::new(
+            VirtualRoot::Package(pkg),
+            VirtualPath::new("lib.typ").unwrap(),
+        )
+        .intern();
         let err = resolver.resolve_source(id).unwrap_err();
         assert!(err.to_string().contains("allow_universe"), "got {err}");
     }

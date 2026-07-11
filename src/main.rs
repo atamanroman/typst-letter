@@ -18,7 +18,9 @@ async fn main() -> Result<()> {
         )
         .init();
 
-    let config_path = std::env::args().nth(1).unwrap_or_else(|| "config.toml".into());
+    let config_path = std::env::args()
+        .nth(1)
+        .unwrap_or_else(|| "config.toml".into());
     let config = config::Config::load(Path::new(&config_path))?;
     config.check_templates_dir()?;
     tracing::info!(

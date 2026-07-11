@@ -78,7 +78,10 @@ mod tests {
 
     #[test]
     fn title_extraction() {
-        assert_eq!(extract_title("// Business letter\n#import", "x"), "Business letter");
+        assert_eq!(
+            extract_title("// Business letter\n#import", "x"),
+            "Business letter"
+        );
         assert_eq!(extract_title("\n\n#import \"a\"\n", "x"), "#import \"a\"");
         assert_eq!(extract_title("", "fallback"), "fallback");
         assert_eq!(extract_title("\n  \n", "fallback"), "fallback");

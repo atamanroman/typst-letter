@@ -26,8 +26,13 @@ pub struct Diag {
 
 #[derive(Debug)]
 pub enum CompileOutcome {
-    Ok { pdf: Vec<u8>, warnings: Vec<Diag> },
-    Failed { diags: Vec<Diag> },
+    Ok {
+        pdf: Vec<u8>,
+        warnings: Vec<Diag>,
+    },
+    Failed {
+        diags: Vec<Diag>,
+    },
     /// Queue full — client should back off (429).
     Busy,
     /// Wall-clock timeout exceeded (500, generic).
@@ -107,7 +112,11 @@ fn worker_loop(config: &Config, rx: crossbeam_channel::Receiver<Job>) {
     let engine = builder.build();
 
     while let Ok(job) = rx.recv() {
-        let Job { source, slug, reply } = job;
+        let Job {
+            source,
+            slug,
+            reply,
+        } = job;
         let size = source.len();
         let start = Instant::now();
         let outcome = catch_unwind(AssertUnwindSafe(|| compile_once(&engine, &slot, &source)))
@@ -153,11 +162,7 @@ impl typst_as_lib::file_resolver::FileResolver for SlotResolver {
     }
 }
 
-fn compile_once(
-    engine: &TypstEngine,
-    slot: &MainSlot,
-    source: &str,
-) -> CompileOutcome {
+fn compile_once(engine: &TypstEngine, slot: &MainSlot, source: &str) -> CompileOutcome {
     slot.set_source(source);
     let main = slot.source();
     let result = engine.compile::<_, PagedDocument>(MainSlot::file_id());
@@ -285,7 +290,10 @@ mod tests {
         let dir = fixture();
         let pool = CompilerPool::new(&test_config(dir.path())).unwrap();
         match pool
-            .compile("t".into(), "#import \"shared/letter.typ\": letter\nok".into())
+            .compile(
+                "t".into(),
+                "#import \"shared/letter.typ\": letter\nok".into(),
+            )
             .await
         {
             CompileOutcome::Ok { .. } => {}
@@ -321,10 +329,7 @@ mod tests {
         let dir = fixture();
         let pool = CompilerPool::new(&test_config(dir.path())).unwrap();
         match pool
-            .compile(
-                "t".into(),
-                "#import \"@preview/example:0.1.0\": *".into(),
-            )
+            .compile("t".into(), "#import \"@preview/example:0.1.0\": *".into())
             .await
         {
             CompileOutcome::Failed { diags } => {
