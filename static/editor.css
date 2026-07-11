@@ -1,0 +1,91 @@
+* { box-sizing: border-box; }
+
+:root {
+  --border: #d0d0d0;
+  --accent: #3a5fcd;
+  --error: #c0392b;
+  --warning: #b7791f;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  color: #222;
+}
+
+/* ---------- index ---------- */
+
+body.index { padding: 2rem; max-width: 40rem; }
+.templates { list-style: none; padding: 0; }
+.templates li { margin: 0.5rem 0; }
+.templates a {
+  display: block;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  text-decoration: none;
+  color: inherit;
+}
+.templates a:hover { border-color: var(--accent); }
+.templates .slug { font-weight: 600; color: var(--accent); }
+
+/* ---------- editor page ---------- */
+
+body.editor-page { height: 100vh; overflow: hidden; }
+#app { display: flex; flex-direction: column; height: 100vh; }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.4rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+.toolbar .home { text-decoration: none; color: inherit; font-weight: 600; }
+.toolbar .status { flex: 1; color: #777; font-size: 0.9rem; }
+.toolbar button {
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+.toolbar button:hover { border-color: var(--accent); }
+
+.split {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 6px 1fr;
+  min-height: 0;
+}
+
+.pane { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+
+#editor { flex: 1; min-height: 0; overflow: auto; }
+#editor .cm-editor { height: 100%; }
+
+.divider { background: var(--border); cursor: col-resize; }
+.divider:hover { background: var(--accent); }
+
+.preview { background: #666; }
+.preview embed { width: 100%; height: 100%; border: 0; }
+#preview-empty { color: #eee; padding: 1rem; }
+
+.diagnostics {
+  max-height: 8rem;
+  overflow: auto;
+  border-top: 1px solid var(--border);
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+}
+.diag.error { color: var(--error); }
+.diag.warning { color: var(--warning); }
+
+/* ---------- narrow layout ---------- */
+
+body.narrow .split { grid-template-columns: 1fr !important; }
+body.narrow .divider { display: none; }
+body.narrow .preview { display: none; }
+body.narrow.show-preview .preview { display: flex; }
+body.narrow.show-preview #editor-pane { display: none; }
