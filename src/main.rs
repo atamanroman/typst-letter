@@ -1,4 +1,5 @@
 mod config;
+mod resolver;
 mod templates;
 
 use anyhow::Result;
