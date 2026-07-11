@@ -25,3 +25,7 @@ build:
 # Rebuild the minified frontend bundle into static/
 frontend:
     cd frontend && npm ci && npm run build
+
+# Nix build of the packaged binary
+nix-build:
+    nix build
