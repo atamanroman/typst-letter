@@ -35,7 +35,7 @@ const splitEl = document.querySelector(".split");
 
 // ---------- Editor ----------
 
-const stored = localStorage.getItem(storageKey);
+const stored = sessionStorage.getItem(storageKey);
 const usingDraft = stored !== null && stored !== boot.source;
 const initialSource = usingDraft ? stored : boot.source;
 
@@ -66,7 +66,7 @@ function setDraftUi(active) {
 setDraftUi(usingDraft);
 
 resetBtn.onclick = () => {
-  localStorage.removeItem(storageKey);
+  sessionStorage.removeItem(storageKey);
   view.dispatch({
     changes: { from: 0, to: view.state.doc.length, insert: boot.source },
   });
@@ -84,7 +84,7 @@ let retried429 = false;
 
 function onEdit() {
   const current = view.state.doc.toString();
-  localStorage.setItem(storageKey, current);
+  sessionStorage.setItem(storageKey, current);
   setDraftUi(current !== boot.source);
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(compile, boot.debounceMs);

@@ -25,7 +25,8 @@ the filename stem. `templates/shared/` holds `letter.typ` (the reusable
 letter function) and `signature.png` (replace the placeholder with your
 own scan) and is not itself routable. The on-disk `.typ` files are pristine
 starting points: the server never writes to them, browser edits live in
-`localStorage` only. Note that Typst resolves relative paths against the
+`sessionStorage` only (drafts survive reloads, die with the tab). Note
+that Typst resolves relative paths against the
 file using them, so pass project-rooted paths like `/shared/signature.png`
 as arguments.
 
