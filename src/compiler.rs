@@ -311,16 +311,25 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn seed_business_template_compiles() {
+    async fn all_seed_templates_compile() {
         let templates = Path::new(env!("CARGO_MANIFEST_DIR")).join("templates");
         let pool = CompilerPool::new(&test_config(&templates)).unwrap();
-        let source = std::fs::read_to_string(templates.join("business.typ")).unwrap();
-        match pool.compile("business".into(), source).await {
-            CompileOutcome::Ok { pdf, warnings } => {
-                assert_eq!(&pdf[..4], b"%PDF");
-                assert!(warnings.is_empty(), "unexpected warnings: {warnings:?}");
+        let metas = crate::templates::list_templates(&templates);
+        assert!(metas.len() >= 3, "expected seed templates, found {metas:?}");
+        for meta in metas {
+            let source = std::fs::read_to_string(templates.join(format!("{}.typ", meta.slug)))
+                .unwrap();
+            match pool.compile(meta.slug.clone(), source).await {
+                CompileOutcome::Ok { pdf, warnings } => {
+                    assert_eq!(&pdf[..4], b"%PDF", "{}", meta.slug);
+                    assert!(
+                        warnings.is_empty(),
+                        "{}: unexpected warnings: {warnings:?}",
+                        meta.slug
+                    );
+                }
+                other => panic!("seed template {} must compile, got {other:?}", meta.slug),
             }
-            other => panic!("seed template must compile, got {other:?}"),
         }
     }
 
