@@ -4,6 +4,7 @@
 // Informationsblock rechts bei 125mm. Text beginnt bei 98,46mm.
 
 #let din-letter(
+  logo: none,                // letterhead: image path (string) or arbitrary content
   name: "Max Mustermann",
   address: (),               // sender address lines, e.g. ("Musterstr. 1", "12345 Berlin")
   contact: (:),              // e.g. (tel: "+49 30 1234567", email: "max@example.de")
@@ -31,8 +32,11 @@
       place(top + left, dx: 5mm, dy: 210mm, line(length: 4mm, stroke: 0.4pt))
       place(top + left, dx: 5mm, dy: 148.5mm, line(length: 6mm, stroke: 0.4pt))
 
-      // Briefkopf
-      place(top + left, dx: 25mm, dy: 17mm, text(size: 16pt, weight: "bold", name))
+      // Briefkopf: top 45mm are free for a letterhead per DIN 5008
+      if logo != none {
+        place(top + left, dx: 25mm, dy: 15mm,
+          if type(logo) == str { image(logo, height: 18mm) } else { logo })
+      }
 
       // Anschriftfeld (85mm × 40mm ab 45mm/20mm)
       place(top + left, dx: 20mm, dy: 45mm, box(width: 85mm, height: 40mm, {
