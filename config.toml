@@ -1,0 +1,10 @@
+listen                 = "127.0.0.1:8080"
+templates_dir          = "./templates"
+font_paths             = ["./.fonts"]
+max_source             = "256KiB"
+compile_timeout        = "10s"
+debounce_ms            = 500
+max_compiles_in_flight = 4
+allow_universe         = false
+base_title             = "Letters"
+# auth = { user = "alice", pass = "…" }   # optional HTTP Basic auth
