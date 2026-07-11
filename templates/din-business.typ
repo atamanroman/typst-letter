@@ -2,6 +2,7 @@
 #import "shared/din-letter.typ": din-letter
 
 #show: din-letter.with(
+  logo: "/shared/logo.png",
   name: "Erika Musterfrau",
   address: ("Musterstraße 12", "10115 Berlin"),
   contact: (tel: "Tel. +49 30 123456", email: "erika@musterfrau.de"),
