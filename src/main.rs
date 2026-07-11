@@ -1,3 +1,4 @@
+mod compiler;
 mod config;
 mod resolver;
 mod templates;
