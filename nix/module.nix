@@ -38,7 +38,7 @@ in
 
     package = lib.mkOption {
       type = lib.types.package;
-      default = flake.packages.${pkgs.system}.default;
+      default = flake.packages.${pkgs.stdenv.hostPlatform.system}.default;
       defaultText = "typst-letter from this flake";
       description = "The typst-letter package to run.";
     };
