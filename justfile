@@ -29,3 +29,19 @@ frontend:
 # Nix build of the packaged binary
 nix-build:
     nix build
+
+# Run the project site locally
+site-dev:
+    cd site && zola serve --drafts
+
+# Build the project site; optionally override its base URL
+site-build base_url="":
+    cd site && zola build {{ if base_url == "" { "" } else { "--base-url=" + base_url } }}
+
+# Validate the project site and its links
+site-check:
+    cd site && zola check
+
+# Build and publish the project site to Cloudflare
+site-deploy: (site-build "https://letters.atamanroman.dev")
+    cd site && npx wrangler deploy

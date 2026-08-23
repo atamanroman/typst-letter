@@ -1,0 +1,4 @@
+[submodule "site/themes/zap"]
+	path = site/themes/zap
+	url = ssh://forgejo@git.neonforest.org/ra/zola-zap
+	branch = main

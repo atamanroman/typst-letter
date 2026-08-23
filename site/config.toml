@@ -1,0 +1,55 @@
+base_url = "https://letters.atamanroman.dev"
+title = "letters"
+description = "write private letters in Typst"
+default_language = "en"
+theme = "zap"
+compile_sass = false
+build_search_index = false
+generate_feeds = false
+minify_html = true
+
+[markdown]
+smart_punctuation = true
+
+[markdown.highlighting]
+light_theme = "github-light"
+dark_theme = "github-dark"
+
+[extra]
+keywords = "Typst, letter, editor, self-hosted, PDF"
+footer_text = "write, preview and download without giving drafts away"
+inline_icons = false
+menu_links = [
+  { name = "Home", url = "$BASE_URL/" },
+  { name = "Install", url = "$BASE_URL/#install" },
+  { name = "Source", url = "https://github.com/atamanroman/typst-letter" },
+  { name = "Projects", url = "https://www.atamanroman.dev/projects/" },
+]
+
+[extra.brand]
+header_gap = "5rem"
+lines = [
+  { text = '█   █▀▀ ▀█▀', color = "#3978ff" },
+  { text = '█   █▀▀  █ ', color = "#3978ff" },
+  { text = '▀▀▀ ▀▀▀  ▀ ', color = "#3978ff" },
+]
+
+[extra.palette]
+light_background = "#f7f8fc"
+light_text = "#11131a"
+light_muted = "#313746"
+light_link = "#285ac8"
+light_visited = "#7651b5"
+light_accent = "#008457"
+light_surface = "#e9edf6"
+light_selection = "#b9f3dc"
+light_selection_text = "#11131a"
+dark_background = "#0c0e14"
+dark_text = "#f1f3f8"
+dark_muted = "#c8cfde"
+dark_link = "#70a0ff"
+dark_visited = "#bd9cff"
+dark_accent = "#54dda8"
+dark_surface = "#181c27"
+dark_selection = "#285ac8"
+dark_selection_text = "#ffffff"
