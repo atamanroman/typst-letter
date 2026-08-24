@@ -17,6 +17,8 @@ use crate::templates;
 // Frontend bundle is embedded so the service ships as a single binary.
 static EDITOR_JS: &str = include_str!("../static/editor.js");
 static EDITOR_CSS: &str = include_str!("../static/editor.css");
+static LIGHT_ICON: &str = include_str!("../static/icons/light.svg");
+static ASLEEP_ICON: &str = include_str!("../static/icons/asleep.svg");
 
 #[derive(Clone)]
 pub struct AppState {
@@ -33,6 +35,8 @@ pub fn router(state: AppState) -> Router {
         .route("/{slug}/compile", post(compile))
         .route("/static/editor.js", get(editor_js))
         .route("/static/editor.css", get(editor_css))
+        .route("/static/icons/light.svg", get(light_icon))
+        .route("/static/icons/asleep.svg", get(asleep_icon))
         .layer(DefaultBodyLimit::max(max_source))
         .with_state(state);
     let app = match auth {
@@ -97,6 +101,7 @@ async fn index(State(state): State<AppState>) -> Html<String> {
         })
         .collect();
     let title = html_escape(&state.config.base_title);
+    let year = chrono::Local::now().format("%Y");
     Html(format!(
         r#"<!doctype html>
 <html lang="en">
@@ -105,11 +110,27 @@ async fn index(State(state): State<AppState>) -> Html<String> {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <link rel="stylesheet" href="/static/editor.css">
+<meta name="theme-color" id="tc">
+<script>(function(){{var m=matchMedia('(prefers-color-scheme:dark)'),t=localStorage.theme,h=document.documentElement,c=document.getElementById('tc');t=t=='dk'||t=='lt'?t:m.matches?'dk':'lt';localStorage.theme=t;h.className=t;function u(){{c.content=getComputedStyle(h).getPropertyValue('--tc')}}u();window.zb=function(){{t=t==='dk'?'lt':'dk';localStorage.theme=t;h.className=t;u()}}}})()</script>
 </head>
 <body class="index">
-<h1>{title}</h1>
+<header class="index-header">
+<div class="brand">
+<pre class="brand-logo" aria-hidden="true"><span>█   █▀▀ ▀█▀</span><span>█   █▀▀  █ </span><span>▀▀▀ ▀▀▀  ▀ </span></pre>
+<span><strong>{title}</strong><span class="desc"> · private Typst letter editor</span></span>
+</div>
+<button class="theme" type="button" onclick="zb()" aria-label="Toggle theme" title="Toggle theme"><img src="/static/icons/light.svg" alt="Light mode"><img src="/static/icons/asleep.svg" alt="Dark mode"></button>
+</header>
+<main>
+<h1>choose a template</h1>
+<p class="intro">Edit beside a live PDF preview. Drafts stay in this browser tab.</p>
 <ul class="templates">
 {items}</ul>
+</main>
+<footer>
+<span>© {year} Roman Ataman</span>
+<span><a href="https://letters.atamanroman.dev">letters.atamanroman.dev</a> · <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/">PolyForm Noncommercial 1.0.0</a></span>
+</footer>
 </body>
 </html>
 "#
@@ -139,6 +160,8 @@ async fn editor(
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <link rel="stylesheet" href="/static/editor.css">
+<meta name="theme-color" id="tc">
+<script>(function(){{var m=matchMedia('(prefers-color-scheme:dark)'),t=localStorage.theme,h=document.documentElement,c=document.getElementById('tc');t=t=='dk'||t=='lt'?t:m.matches?'dk':'lt';localStorage.theme=t;h.className=t;function u(){{c.content=getComputedStyle(h).getPropertyValue('--tc')}}u();window.zb=function(){{t=t==='dk'?'lt':'dk';localStorage.theme=t;h.className=t;u()}}}})()</script>
 </head>
 <body class="editor-page">
 <script type="application/json" id="boot">{boot}</script>
@@ -234,6 +257,14 @@ async fn editor_css() -> impl IntoResponse {
     )
 }
 
+async fn light_icon() -> impl IntoResponse {
+    ([(header::CONTENT_TYPE, "image/svg+xml")], LIGHT_ICON)
+}
+
+async fn asleep_icon() -> impl IntoResponse {
+    ([(header::CONTENT_TYPE, "image/svg+xml")], ASLEEP_ICON)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -285,6 +316,24 @@ mod tests {
             .unwrap();
         assert!(body.contains("Business letter"));
         assert!(body.contains("/personal"));
+        assert!(body.contains("© "));
+        assert!(body.contains("Roman Ataman"));
+        assert!(body.contains("polyformproject.org/licenses/noncommercial/1.0.0/"));
+        assert!(body.contains("/static/icons/light.svg"));
+        assert!(body.contains("/static/icons/asleep.svg"));
+    }
+
+    #[tokio::test]
+    async fn theme_icons_are_embedded() {
+        let (_d, state) = fixture();
+        let app = router(state);
+        for uri in ["/static/icons/light.svg", "/static/icons/asleep.svg"] {
+            let res = app.clone().oneshot(req("GET", uri, "")).await.unwrap();
+            assert_eq!(res.status(), StatusCode::OK);
+            assert_eq!(res.headers()[header::CONTENT_TYPE], "image/svg+xml");
+            let body = res.into_body().collect().await.unwrap().to_bytes();
+            assert!(body.starts_with(b"<svg"));
+        }
     }
 
     #[tokio::test]

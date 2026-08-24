@@ -1,3 +1,11 @@
 {% extends "zap/templates/base.html" %}
 
 {% block rss %}{% endblock rss %}
+
+{% block footer %}
+<footer class="s">
+    <span>© {{ now() | date(format="%Y") }} Roman Ataman</span>
+    {% if config.extra?.footer_text %}<span>{{ config.extra.footer_text }}</span>{% endif %}
+    <span><a href="https://polyformproject.org/licenses/noncommercial/1.0.0/">PolyForm Noncommercial 1.0.0</a></span>
+</footer>
+{% endblock footer %}

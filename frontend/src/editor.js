@@ -1,7 +1,18 @@
 import { basicSetup, EditorView } from "codemirror";
-import { EditorState } from "@codemirror/state";
+import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { setDiagnostics } from "@codemirror/lint";
+import { EditorState } from "@codemirror/state";
+import { tags } from "@lezer/highlight";
 import { typstLanguage } from "./typst-language.js";
+
+const neonforestHighlight = HighlightStyle.define([
+  { tag: tags.heading, color: "var(--syntax-function)", fontWeight: "bold" },
+  { tag: tags.keyword, color: "var(--syntax-keyword)" },
+  { tag: tags.string, color: "var(--syntax-string)" },
+  { tag: tags.number, color: "var(--syntax-number)" },
+  { tag: tags.comment, color: "var(--syntax-comment)" },
+  { tag: tags.function(tags.variableName), color: "var(--syntax-function)" },
+]);
 
 const boot = JSON.parse(document.getElementById("boot").textContent);
 const storageKey = `typst-letter:${boot.slug}`;
@@ -16,6 +27,7 @@ app.innerHTML = `
     <span id="draft-note" class="draft-note" hidden>local draft</span>
     <button id="reset" hidden title="Discard local draft, load the template from disk">Reset</button>
     <button id="toggle" class="toggle" hidden>Preview</button>
+    <button class="theme" type="button" onclick="zb()" aria-label="Toggle theme" title="Toggle theme"><img src="/static/icons/light.svg" alt="Light mode"><img src="/static/icons/asleep.svg" alt="Dark mode"></button>
     <button id="download">Download PDF</button>
   </header>
   <main class="split">
@@ -46,6 +58,7 @@ const view = new EditorView({
     extensions: [
       basicSetup,
       typstLanguage,
+      syntaxHighlighting(neonforestHighlight),
       EditorView.lineWrapping,
       EditorView.updateListener.of((update) => {
         if (update.docChanged) onEdit();
