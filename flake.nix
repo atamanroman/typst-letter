@@ -14,7 +14,11 @@
       "x86_64-linux"
     ] (system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
+        pkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfreePredicate = pkg:
+            nixpkgs.lib.getName pkg == "typst-letter";
+        };
 
         zolaSrc = pkgs.fetchFromGitHub {
           owner = "getzola";
